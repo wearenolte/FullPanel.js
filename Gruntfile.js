@@ -24,9 +24,13 @@ module.exports = function (grunt) {
                 banner: '<%= banner %>',
                 stripBanners: true
             },
-            dist: {
+            basic: {
                 src: ['src/<%= pkg.name %>.js'],
                 dest: 'dist/jquery.<%= pkg.name %>.js'
+            },
+            vendor: {
+                src: ['src/vendor/jquery.easing.min.js'],
+                dest: 'dist/vendor/jquery.easing.min.js'
             }
         },
         cssmin: {
@@ -40,7 +44,7 @@ module.exports = function (grunt) {
                 banner: '<%= banner %>'
             },
             dist: {
-                src: '<%= concat.dist.dest %>',
+                src: '<%= concat.basic.dest %>',
                 dest: 'dist/jquery.<%= pkg.name %>.min.js'
             }
         },
