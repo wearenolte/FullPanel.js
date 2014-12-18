@@ -16,7 +16,9 @@ In your web page:
 <script src="dist/fullpaneljs.min.js"></script>
 <script>
 jQuery(function($) {
-  $.fullpanel("#fullpanel-container"); // "awesome"
+  $("#fullpanel").fullpanel({
+    //options
+  }); 
 });
 </script>
 

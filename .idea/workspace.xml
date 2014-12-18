@@ -30,8 +30,8 @@
       <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.11378002" vertical-offset="0" max-vertical-offset="791">
-              <caret line="6" column="73" selection-start-line="6" selection-start-column="73" selection-end-line="6" selection-end-column="73" />
+            <state vertical-scroll-proportion="0.3603034" vertical-offset="0" max-vertical-offset="791">
+              <caret line="19" column="13" selection-start-line="19" selection-start-column="13" selection-end-line="19" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -43,7 +43,7 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/examples/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-8.208333" vertical-offset="1753" max-vertical-offset="2550">
+            <state vertical-scroll-proportion="-81.25" vertical-offset="0" max-vertical-offset="2550">
               <caret line="130" column="0" selection-start-line="130" selection-start-column="0" selection-end-line="161" selection-end-column="6" />
               <folding />
             </state>
@@ -486,7 +486,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-8.208333" vertical-offset="1753" max-vertical-offset="2550">
+        <state vertical-scroll-proportion="-81.25" vertical-offset="0" max-vertical-offset="2550">
           <caret line="130" column="0" selection-start-line="130" selection-start-column="0" selection-end-line="161" selection-end-column="6" />
           <folding />
         </state>
@@ -494,8 +494,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.11378002" vertical-offset="0" max-vertical-offset="791">
-          <caret line="6" column="73" selection-start-line="6" selection-start-column="73" selection-end-line="6" selection-end-column="73" />
+        <state vertical-scroll-proportion="0.3603034" vertical-offset="0" max-vertical-offset="791">
+          <caret line="19" column="13" selection-start-line="19" selection-start-column="13" selection-end-line="19" selection-end-column="13" />
           <folding />
         </state>
       </provider>
