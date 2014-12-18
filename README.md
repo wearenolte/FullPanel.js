@@ -5,9 +5,8 @@ jQuery plugin for fullPanel website based inspired by fullPage.js
 ## Getting Started
 
 Download the [production version][min] or the [development version][max].
-
-[min]: https://github.com/moxienyc/FullPanel.js/blob/master/dist/jquery.fullpanel.min.js
-[max]: https://github.com/moxienyc/FullPanel.js/blob/master/dist/jquery.fullpanel.js
+[min]: https://raw.githubusercontent.com/moxienyc/FullPanel.js/blob/master/dist/jquery.fullpanel.min.js
+[max]: https://raw.githubusercontent.com/moxienyc/FullPanel.js/blob/master/dist/jquery.fullpanel.js
 
 In your web page:
 
