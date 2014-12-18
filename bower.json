@@ -26,7 +26,7 @@
         ".jshintignore",
         ".travis.yml",
         "**/*.txt"
-    ]
+    ],
     "dependencies": {
         "jquery": "1.x"
     },
