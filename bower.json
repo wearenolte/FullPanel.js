@@ -1,7 +1,7 @@
 {
     "name": "fullpanel.js",
     "version": "1.0.0",
-    "homepage": "https://github.com/moxienyc/FullPanel.js"
+    "homepage": "https://github.com/moxienyc/FullPanel.js",
     "authors": [
         "Jeffrey Nolte http://github.com/jeffreynolte"
     ],
@@ -13,10 +13,11 @@
     "keyworks": [
         "jquery",
         "fading",
-        "single_page".
+        "single_page"
+        .
         "full_page"
     ],
-    "license" : "MIT",
+    "license": "MIT",
     "ignore": [
         "bower_components",
         "test",
