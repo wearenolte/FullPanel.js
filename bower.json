@@ -13,8 +13,7 @@
     "keyworks": [
         "jquery",
         "fading",
-        "single_page"
-        .
+        "single_page",
         "full_page"
     ],
     "license": "MIT",
