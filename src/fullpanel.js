@@ -105,14 +105,13 @@
 
         // Initial Vars for creation of the fullPanel plugin
         // TODO: Add in mobile / responsive support
-        var container = $(this);
+        var $container = $(this);
         var isMoving = false;
         var isResizing = false;
         var lastScrolledDestiny;
         var $nav;
         var $body = $('body');
         var wrapperSelector = 'fullpanel-wrapper';
-        var $panel = $(this);
         var $fpSection = $('.fp-section');
 
         //add class to each panel / section
@@ -121,9 +120,9 @@
         });
 
         //if we have panels set up in reverse order to eliminate use of zIndex
-        if ($panel.length) {
-            container.addClass(wrapperSelector);
-            container.append(container.children().get().reverse());
+        if ($container.length) {
+            $container.addClass(wrapperSelector);
+            $container.append($container.children().get().reverse());
         } else {
             window.alert("Error, Fullpanel.js needs to be initialized with a selector");
         }
