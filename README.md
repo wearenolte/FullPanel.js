@@ -8,6 +8,11 @@ Download the [production version][min] or the [development version][max].
 [min]: https://raw.githubusercontent.com/moxienyc/FullPanel.js/blob/master/dist/jquery.fullpanel.min.js
 [max]: https://raw.githubusercontent.com/moxienyc/FullPanel.js/blob/master/dist/jquery.fullpanel.js
 
+## Install with [Bower](http://bower.io):
+```bash
+bower install fullpanel.js
+```
+                         
 In your web page:
 
 ```html
