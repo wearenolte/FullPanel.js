@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>fullPanel.js Example</title>
+    <meta name="author" content="Jeffrey C. Nolte"/>
+
+    <link rel="stylesheet" type="text/css" href="../src/css/fullpanel.css"/>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+
+    <script type="text/javascript" src="../src/fullpanel.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $("#fullpanel").fullpanel({
+                anchors: ['firstPage', 'secondPage', '3rdPage', '4thPage','5thPage','6thPage',],
+                menu: '#menu',
+                css3: false,
+                navigation: true,
+                'afterLoad': function (a, i) {
+                    console.info("afterLoad");
+                    var i = --i;
+                    $(".fp-section:eq(" + i + ") .step-one").delay(1500).animate({"opacity": 1});
+                    $(".fp-section:eq(" + i + ") .step-two").delay(2000).animate({"opacity": 1});
+                    $(".fp-section:eq(" + i + ") .step-three").delay(2500).animate({"opacity": 1});
+                },
+                'onLeave': function (a,i) {
+                    console.info("onLeave");
+                    var i = --i;
+                    $(".fp-section:eq(" + i + ") .step-one").css({"opacity": 0});
+                    $(".fp-section:eq(" + i + ") .step-two").css({"opacity": 0});
+                    $(".fp-section:eq(" + i + ") .step-three").css({"opacity": 0});
+                },
+                'afterRender': function () {
+                    console.info("afterRender");
+                },
+                'afterResize': function () {
+                    console.info("afterResize");
+                },
+                'afterRebuild': function () {
+                    console.info("afterRebuild");
+                },
+                'afterSlideLoad': function () {
+                    console.info("afterSlideLoad");
+                },
+                'onSlideLeave': function () {
+                    console.info("afterSlideLeave");
+                }
+
+            });
+        });
+
+    </script>
+    <style>
+
+        .fp-section{
+            padding-top:100px;
+        }
+        .one {
+            background: red;
+        }
+
+        .two {
+            background: yellow;
+        }
+
+        .three {
+            background: yellowgreen;
+        }
+
+        .four {
+            background: greenyellow;
+        }
+
+        .five {
+            background: darkgreen;
+        }
+
+        .six {
+            background: blue;
+        }
+
+        #menu{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #000;
+            z-index: 101;
+            margin: 0;
+            padding:20px 0;
+        }
+
+        #menu li{
+            float: left;
+            margin-left: 50px;
+        }
+
+        #menu .active a{
+            border:1px solid red;
+        }
+
+        #menu a{
+            float: left;
+            display: inline-block;
+            color:#EEE;
+        }
+
+        .step-one, .step-two, .step-three{
+            /*display:none;*/
+            opacity:0;
+        }
+
+    </style>
+
+</head>
+<body>
+<ul id="menu">
+    <li data-menuanchor="firstPage"><a href="#firstPage">First section</a></li>
+    <li data-menuanchor="secondPage"><a href="#secondPage">Second section</a></li>
+    <li data-menuanchor="3rdPage"><a href="#3rdPage">Third section</a></li>
+    <li data-menuanchor="4thPage"><a href="#4thPage">Fourth section</a></li>
+    <li data-menuanchor="4thPage"><a href="#5thPage">Fourth section</a></li>
+    <li data-menuanchor="4thPage"><a href="#6thPage">Fourth section</a></li>
+</ul>
+
+<div id="fullpanel">
+    <div data-anchor="firstPage" class="panel one active">Panel 1
+        <div class="step-one">Step One</div>
+        <div class="step-two">Step Two</div>
+        <div class="step-three">Step Three</div>
+    </div>
+    <div data-anchor="secondPage" class="panel two">Panel 2
+        <div class="step-one">Step One</div>
+        <div class="step-two">Step Two</div>
+        <div class="step-three">Step Three</div>
+    </div>
+    <div data-anchor="3rdPage" class="panel three">Panel 3
+        <div class="step-one">Step One</div>
+        <div class="step-two">Step Two</div>
+        <div class="step-three">Step Three</div>
+    </div>
+    <div data-anchor="4thPage" class="panel four">Panel 4
+        <div class="step-one">Step One</div>
+        <div class="step-two">Step Two</div>
+        <div class="step-three">Step Three</div>
+    </div>
+    <div data-anchor="5thPage" class="panel five">Panel 5
+        <div class="step-one">Step One</div>
+        <div class="step-two">Step Two</div>
+        <div class="step-three">Step Three</div>
+    </div>
+    <div data-anchor="6thPage" class="panel six">Panel 6
+        <div class="step-one">Step One</div>
+        <div class="step-two">Step Two</div>
+        <div class="step-three">Step Three</div>
+    </div>
+</div>
+</body>
+</html>
