@@ -1,0 +1,28 @@
+{
+  "name": "fullpaneljs",
+  "title": "Full Panel Website jQuery plugin based on fullPage.js and the:q",
+  "description": "jQuery plugin for fullPanel website based inspired by fullPage.js ",
+  "version": "0.0.1",
+  "homepage": "https://github.com/moxienyc/FullPanel.js.git",
+  "author": {
+    "name": "Jeffrey Nolte",
+    "url": "https://github.com/jeffreynolte"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moxienyc/FullPanel.js.git"
+  },
+  "bugs": "",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "~1.8.3"
+  },
+  "keywords": [
+    "jquery-plugin"
+  ]
+}

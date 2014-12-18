@@ -1,0 +1,36 @@
+{
+  "name": "fullpaneljs",
+  "version": "0.0.1",
+  "description": "Full Panel Website jQuery plugin based on fullPage.js and the:q",
+  "keywords": [
+    "jquery-plugin"
+  ],
+  "homepage": "https://github.com/jeffreynolte/fullpaneljs",
+  "author": {
+    "name": "Jeffrey Nolte",
+    "email": "jnolte@getmoxied.net",
+    "url": "https://github.com/jeffreynolte"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jeffreynolte/fullpaneljs.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-qunit": "~0.5.1",
+    "grunt-contrib-concat": "~0.4.0",
+    "grunt-contrib-uglify": "~0.5.0",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-connect": "~0.8.0",
+    "time-grunt": "~0.3.2",
+    "load-grunt-tasks": "~0.6.0",
+    "jshint-stylish": "~0.2.0",
+    "grunt": "~0.4.5"
+  }
+}
