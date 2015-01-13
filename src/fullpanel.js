@@ -44,6 +44,11 @@
         });
 
         var scrollDelay = 600;
+        
+        // Defines the scrolling speed
+		$.fn.fullpanel.setScrollingSpeed = function(value){
+		   options.scrollingSpeed = value;
+		};
 
         // Move section forwards
         $.fn.fullpanel.moveSectionForward = function () {
