@@ -279,7 +279,16 @@
          * http://blogs.sitepointstatic.com/examples/tech/mouse-wheel/index.html
          * http://www.sitepoint.com/html5-javascript-mouse-wheel/
          */
-        function addMouseWheelHandler(e) {
+        function addMouseWheelHandler() {
+            if (document.addEventListener) {
+                document.addEventListener("mousewheel", MouseWheelHandler, false); //IE9
+                document.addEventListener("wheel", MouseWheelHandler, false); //Firefox
+            } else {
+                document.attachEvent("onmousewheel", MouseWheelHandler); //IE 6/7/8
+            }
+        }
+        
+        function MouseWheelHandler(e) {
             e = window.event || e;
             var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.deltaY || -e.detail)));
 
@@ -290,16 +299,7 @@
                     $.fn.fullpanel.moveSectionBackward();
                 }
             }
-
-            if (document.addEventListener) {
-                document.addEventListener("mousewheel", addMouseWheelHandler, false); //IE9
-                document.addEventListener("wheel", addMouseWheelHandler, false); //Firefox
-            } else {
-                document.attachEvent("wheel", addMouseWheelHandler); //IE 6/7/8
-            }
-
             return false;
-
         }
 
 
