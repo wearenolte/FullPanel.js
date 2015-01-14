@@ -18,11 +18,14 @@
             'navigation': false,
             'css3': true,
             'scrollingSpeed': 700,
+            'autoScrolling' : true,
             'easing': 'easeInQuart',
+            'scrollBar': false,
 
             //ui
             'resize': true,
             'normalScrollElements': null,
+            'touchSensitivity': 5,
 
             //selectors
             'sectionSelector': '.panel',
@@ -45,6 +48,7 @@
         });
 
         var scrollDelay = 600;
+        var slideMoving = false;
         // detect touch
         var isTouchDevice = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|BB10|Windows Phone|Tizen|Bada)/);
         var isTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints));
@@ -66,19 +70,16 @@
          * @param directions string containing the direction or directions separated by comma.
          */
         $.fn.fullpanel.setAllowScrolling = function (value, directions){
-            if(typeof directions != 'undefined'){
-                console.log("directions");
+            if(typeof directions !== 'undefined'){
                 directions = directions.replace(' ', '').split(',');
                 $.each(directions, function (index, direction){
                     setIsScrollable(value, direction);
                 });
             }
             else if(value){
-                console.log("add touch");
                 $.fn.fullpanel.setMouseWheelScrolling(true);
                 addTouchHandler();
             }else{
-                console.log("remove touch")
                 $.fn.fullpanel.setMouseWheelScrolling(false);
                 removeTouchHandler();
             }
@@ -163,6 +164,7 @@
         var $body = $('body');
         var wrapperSelector = 'fullpanel-wrapper';
         var $fpSection = $('.fp-section');
+        var isScrollAllowed = { 'up':true, 'down':true, 'left':true, 'right':true };
 
         $.fn.fullpanel.setAllowScrolling(true);
 
@@ -249,6 +251,83 @@
 
                 var li = '<li><a href="#' + link + '"><span></span></a></li>';
                 $nav.find('ul').append(li);
+            }
+        }
+
+
+
+        function scrollHandler(){
+            if(!options.autoScrolling || options.scrollBar){
+                var currentScroll = $(window).scrollTop();
+                var visibleSectionIndex = 0;
+                var initial = Math.abs(currentScroll - $('.fp-section').first().offset().top);
+
+                //taking the section which is showing more content in the viewport
+                $('.fp-section').each(function(index){
+                    var current = Math.abs(currentScroll - $(this).offset().top);
+
+                    if(current < initial){
+                        visibleSectionIndex = index;
+                        initial = current;
+                    }
+                });
+
+                //geting the last one, the current one on the screen
+                var currentSection = $('.fp-section').eq(visibleSectionIndex);
+            }
+
+            if(!options.autoScrolling){
+                //executing only once the first time we reach the section
+                if(!currentSection.hasClass('active')){
+                    isScrolling = true;
+
+                    var leavingSection = $('.fp-section.active').index('.fp-section') + 1;
+                    var yMovement = getYmovement(currentSection);
+                    var anchorLink  = currentSection.data('anchor');
+                    var sectionIndex = currentSection.index('.fp-section') + 1;
+                    var activeSlide = currentSection.find('.fp-slide.active');
+
+                    if(activeSlide.length){
+                        var slideAnchorLink = activeSlide.data('anchor');
+                        var slideIndex = activeSlide.index();
+                    }
+
+                    currentSection.addClass('active').siblings().removeClass('active');
+
+                    if(!isMoving){
+                        $.isFunction( options.onLeave ) && options.onLeave.call( this, leavingSection, sectionIndex, yMovement);
+
+                        $.isFunction( options.afterLoad ) && options.afterLoad.call( this, anchorLink, sectionIndex);
+                    }
+
+                    activateMenuAndNav(anchorLink, 0);
+
+                    if(options.anchors.length && !isMoving){
+                        //needed to enter in hashChange event when using the menu with anchor links
+                        lastScrolledDestiny = anchorLink;
+
+                        setState(slideIndex, slideAnchorLink, anchorLink, sectionIndex);
+                    }
+
+                    //small timeout in order to avoid entering in hashChange event when scrolling is not finished yet
+                    clearTimeout(scrollId);
+                    scrollId = setTimeout(function(){
+                        isScrolling = false;
+                    }, 100);
+                }
+            }
+
+            //when scrolling...
+            $(window).on('scroll', scrollHandler);
+
+            if(options.scrollBar){
+                //for the auto adjust of the viewport to fit a whole section
+                clearTimeout(scrollId2);
+                scrollId2 = setTimeout(function(){
+                    if(!isMoving){
+                        scrollPage(currentSection);
+                    }
+                }, 1000);
             }
         }
 
@@ -359,79 +438,37 @@
         * This way, the touchstart and the touch moves shows an small difference between them which is the
         * used one to determine the direction.
         */
-        function touchMoveHandler(event){
+        function touchMoveHandler(event) {
             var e = event.originalEvent;
 
-            // additional: if one of the normalScrollElements isn't within options.normalScrollElementTouchThreshold hops up the DOM chain
-            if (!checkParentForNormalScrollElement(event.target)) {
+            if (options.autoScrolling && !options.scrollBar) {
+                //preventing the easing on iOS devices
+                event.preventDefault();
+            }
 
-                if(options.autoScrolling && !options.scrollBar){
-                    //preventing the easing on iOS devices
-                    event.preventDefault();
-                }
+            var activeSection = $('.fp-section.active');
 
-                var activeSection = $('.fp-section.active');
-                var scrollable = isScrollable(activeSection);
+            if (!isMoving) { //if theres any #
+                var touchEvents = getEventsPage(e);
 
-                if (!isMoving && !slideMoving) { //if theres any #
-                    var touchEvents = getEventsPage(e);
+                touchEndY = touchEvents['y'];
+                touchEndX = touchEvents['x'];
 
-                    touchEndY = touchEvents['y'];
-                    touchEndX = touchEvents['x'];
+                //vertical scrolling (only when autoScrolling is enabled)
+                if (options.autoScrolling && !options.scrollBar) {
 
-                    //if movement in the X axys is greater than in the Y and the currect section has slides...
-                    if (activeSection.find('.fp-slides').length && Math.abs(touchStartX - touchEndX) > (Math.abs(touchStartY - touchEndY))) {
-
-                        //is the movement greater than the minimum resistance to scroll?
-                        if (Math.abs(touchStartX - touchEndX) > ($(window).width() / 100 * options.touchSensitivity)) {
-                            if (touchStartX > touchEndX) {
-                                if(isScrollAllowed.right){
-                                    $.fn.fullpage.moveSlideRight(); //next
-                                }
-                            } else {
-                                if(isScrollAllowed.left){
-                                    $.fn.fullpage.moveSlideLeft(); //prev
-                                }
-                            }
-                        }
-                    }
-
-                    //vertical scrolling (only when autoScrolling is enabled)
-                    else if(options.autoScrolling && !options.scrollBar){
-
-                        //is the movement greater than the minimum resistance to scroll?
-                        if (Math.abs(touchStartY - touchEndY) > ($(window).height() / 100 * options.touchSensitivity)) {
-                            if (touchStartY > touchEndY) {
-                                scrolling('down', scrollable);
-                            } else if (touchEndY > touchStartY) {
-                                scrolling('up', scrollable);
-                            }
+                    //is the movement greater than the minimum resistance to scroll?
+                    if (Math.abs(touchStartY - touchEndY) > ($(window).height() / 100 * options.touchSensitivity)) {
+                        if (touchStartY > touchEndY) {
+                            scrolling('down');
+                        } else if (touchEndY > touchStartY) {
+                            scrolling('up');
                         }
                     }
                 }
             }
 
-        }
 
-        /**
-         * recursive function to loop up the parent nodes to check if one of them exists in options.normalScrollElements
-         * Currently works well for iOS - Android might need some testing
-         * @param  {Element} el  target element / jquery selector (in subsequent nodes)
-         * @param  {int}     hop current hop compared to options.normalScrollElementTouchThreshold
-         * @return {boolean} true if there is a match to options.normalScrollElements
-         */
-        function checkParentForNormalScrollElement (el, hop) {
-            hop = hop || 0;
-            var parent = $(el).parent();
-
-            if (hop < options.normalScrollElementTouchThreshold &&
-                parent.is(options.normalScrollElements) ) {
-                return true;
-            } else if (hop == options.normalScrollElementTouchThreshold) {
-                return false;
-            } else {
-                return checkParentForNormalScrollElement(parent, ++hop);
-            }
         }
 
         function touchStartHandler(event){
@@ -440,6 +477,7 @@
             var touchEvents = getEventsPage(e);
             touchStartY = touchEvents['y'];
             touchStartX = touchEvents['x'];
+
         }
 
         function MouseWheelHandler(e) {
@@ -458,11 +496,9 @@
 
         // Adds the possibility to auto scroll through sections on touch devices.
         function addTouchHandler() {
-            console.log("log");
             if (isTouchDevice || isTouch) {
                 //Microsoft pointers
                 var MSPointer = getMSPointer();
-
                 $(document).off('touchstart ' + MSPointer.down).on('touchstart ' + MSPointer.down, touchStartHandler);
                 $(document).off('touchmove ' + MSPointer.move).on('touchmove ' + MSPointer.move, touchMoveHandler);
             }
@@ -507,7 +543,7 @@
          * https://github.com/alvarotrigo/fullPage.js/issues/194#issuecomment-34069854
          */
         function getEventsPage(e){
-            var events = new Array();
+            var events = [];
 
             events['y'] = (typeof e.pageY !== 'undefined' && (e.pageY || e.pageX) ? e.pageY : e.touches[0].pageY);
             events['x'] = (typeof e.pageX !== 'undefined' && (e.pageY || e.pageX) ? e.pageX : e.touches[0].pageX);
@@ -637,6 +673,19 @@
             activateNavDots(anchor, index);
         }
 
+        /**
+         * Return a boolean depending on whether the scrollable element is at the end or at the start of the scrolling
+         * depending on the given type.
+         */
+        function isScrolled(type, scrollable){
+            if(type === 'top'){
+                return !scrollable.scrollTop();
+            }else if(type === 'bottom'){
+                return scrollable.scrollTop() + 1 + scrollable.innerHeight() >= scrollable[0].scrollHeight;
+            }
+        }
+
+
 
         // Set the url hash and body class.
         function setURLHash(anchorLink, sectionIndex) {
@@ -646,6 +695,49 @@
             } else {
                 setBodyClass(String(sectionIndex));
             }
+        }
+
+        function setIsScrollable(value, direction){
+            switch (direction){
+                case 'up': isScrollAllowed.up = value; break;
+                case 'down': isScrollAllowed.down = value; break;
+                case 'left': isScrollAllowed.left = value; break;
+                case 'right': isScrollAllowed.right = value; break;
+                case 'all': $.fn.fullpage.setAllowScrolling(value);
+            }
+        }
+
+        /**
+         * Determines whether the active section or slide is scrollable through and scrolling bar
+         */
+        function isScrollable(activeSection){
+            var scrollable;
+            //if there are landscape slides, we check if the scrolling bar is in the current one or not
+            if(activeSection.find('.fp-slides').length){
+                scrollable = activeSection.find('.fp-section.active').find('.fp-scrollable');
+            }else{
+                scrollable = activeSection.find('.fp-section');
+            }
+
+            return scrollable;
+        }
+
+        /**
+         * Determines the way of scrolling up or down:
+         * by 'automatically' scrolling a section or by using the default and normal scrolling.
+         */
+        function scrolling(type){
+
+            if (!isScrollAllowed[type]){
+                return;
+            }
+
+            if(type === 'up'){
+                $.fn.fullpanel.moveSectionBackward()
+            } else {
+                $.fn.fullpanel.moveSectionForward();
+            }
+
         }
 
         // Sets body class based on current panel
