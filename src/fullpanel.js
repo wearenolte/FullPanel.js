@@ -22,6 +22,7 @@
 
             //ui
             'resize': true,
+            'normalScrollElements': null,
 
             //selectors
             'sectionSelector': '.panel',
@@ -44,11 +45,55 @@
         });
 
         var scrollDelay = 600;
-        
+        // detect touch
+        var isTouchDevice = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|BB10|Windows Phone|Tizen|Bada)/);
+        var isTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints));
+
+        var touchStartY = 0;
+        var touchStartX = 0;
+        var touchEndY = 0;
+        var touchEndX = 0;
+
         // Defines the scrolling speed
 		$.fn.fullpanel.setScrollingSpeed = function(value){
 		   options.scrollingSpeed = value;
 		};
+
+        /**
+         * Adds or remove the possiblity of scrolling through sections by using the mouse wheel/trackpad or touch gestures.
+         * Optionally a second parameter can be used to specify the direction for which the action will be applied.
+         *
+         * @param directions string containing the direction or directions separated by comma.
+         */
+        $.fn.fullpanel.setAllowScrolling = function (value, directions){
+            if(typeof directions != 'undefined'){
+                console.log("directions");
+                directions = directions.replace(' ', '').split(',');
+                $.each(directions, function (index, direction){
+                    setIsScrollable(value, direction);
+                });
+            }
+            else if(value){
+                console.log("add touch");
+                $.fn.fullpanel.setMouseWheelScrolling(true);
+                addTouchHandler();
+            }else{
+                console.log("remove touch")
+                $.fn.fullpanel.setMouseWheelScrolling(false);
+                removeTouchHandler();
+            }
+        };
+
+        /**
+         * Adds or remove the possiblity of scrolling through sections by using the mouse wheel or the trackpad.
+         */
+        $.fn.fullpanel.setMouseWheelScrolling = function (value){
+            if(value){
+                addMouseWheelHandler();
+            }else{
+                removeMouseWheelHandler();
+            }
+        };
 
         // Move section forwards
         $.fn.fullpanel.moveSectionForward = function () {
@@ -118,6 +163,8 @@
         var $body = $('body');
         var wrapperSelector = 'fullpanel-wrapper';
         var $fpSection = $('.fp-section');
+
+        $.fn.fullpanel.setAllowScrolling(true);
 
         //add class to each panel / section
         $(options.sectionSelector).each(function () {
@@ -292,7 +339,109 @@
                 document.attachEvent("onmousewheel", MouseWheelHandler); //IE 6/7/8
             }
         }
-        
+
+        /**
+         * Removes the auto scrolling action fired by the mouse wheel and trackpad.
+         * After this function is called, the mousewheel and trackpad movements won't scroll through sections.
+         */
+        function removeMouseWheelHandler(){
+            if (document.addEventListener) {
+                document.removeEventListener('mousewheel', MouseWheelHandler, false); //IE9, Chrome, Safari, Oper
+                document.removeEventListener('wheel', MouseWheelHandler, false); //Firefox
+            } else {
+                document.detachEvent("onmousewheel", MouseWheelHandler); //IE 6/7/8
+            }
+        }
+
+
+
+        /* As we are changing the top property of the page on scrolling, we can not use the traditional way to detect it.
+        * This way, the touchstart and the touch moves shows an small difference between them which is the
+        * used one to determine the direction.
+        */
+        function touchMoveHandler(event){
+            var e = event.originalEvent;
+
+            // additional: if one of the normalScrollElements isn't within options.normalScrollElementTouchThreshold hops up the DOM chain
+            if (!checkParentForNormalScrollElement(event.target)) {
+
+                if(options.autoScrolling && !options.scrollBar){
+                    //preventing the easing on iOS devices
+                    event.preventDefault();
+                }
+
+                var activeSection = $('.fp-section.active');
+                var scrollable = isScrollable(activeSection);
+
+                if (!isMoving && !slideMoving) { //if theres any #
+                    var touchEvents = getEventsPage(e);
+
+                    touchEndY = touchEvents['y'];
+                    touchEndX = touchEvents['x'];
+
+                    //if movement in the X axys is greater than in the Y and the currect section has slides...
+                    if (activeSection.find('.fp-slides').length && Math.abs(touchStartX - touchEndX) > (Math.abs(touchStartY - touchEndY))) {
+
+                        //is the movement greater than the minimum resistance to scroll?
+                        if (Math.abs(touchStartX - touchEndX) > ($(window).width() / 100 * options.touchSensitivity)) {
+                            if (touchStartX > touchEndX) {
+                                if(isScrollAllowed.right){
+                                    $.fn.fullpage.moveSlideRight(); //next
+                                }
+                            } else {
+                                if(isScrollAllowed.left){
+                                    $.fn.fullpage.moveSlideLeft(); //prev
+                                }
+                            }
+                        }
+                    }
+
+                    //vertical scrolling (only when autoScrolling is enabled)
+                    else if(options.autoScrolling && !options.scrollBar){
+
+                        //is the movement greater than the minimum resistance to scroll?
+                        if (Math.abs(touchStartY - touchEndY) > ($(window).height() / 100 * options.touchSensitivity)) {
+                            if (touchStartY > touchEndY) {
+                                scrolling('down', scrollable);
+                            } else if (touchEndY > touchStartY) {
+                                scrolling('up', scrollable);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        /**
+         * recursive function to loop up the parent nodes to check if one of them exists in options.normalScrollElements
+         * Currently works well for iOS - Android might need some testing
+         * @param  {Element} el  target element / jquery selector (in subsequent nodes)
+         * @param  {int}     hop current hop compared to options.normalScrollElementTouchThreshold
+         * @return {boolean} true if there is a match to options.normalScrollElements
+         */
+        function checkParentForNormalScrollElement (el, hop) {
+            hop = hop || 0;
+            var parent = $(el).parent();
+
+            if (hop < options.normalScrollElementTouchThreshold &&
+                parent.is(options.normalScrollElements) ) {
+                return true;
+            } else if (hop == options.normalScrollElementTouchThreshold) {
+                return false;
+            } else {
+                return checkParentForNormalScrollElement(parent, ++hop);
+            }
+        }
+
+        function touchStartHandler(event){
+            var e = event.originalEvent;
+
+            var touchEvents = getEventsPage(e);
+            touchStartY = touchEvents['y'];
+            touchStartX = touchEvents['x'];
+        }
+
         function MouseWheelHandler(e) {
             e = window.event || e;
             var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.deltaY || -e.detail)));
@@ -305,6 +454,65 @@
                 }
             }
             return false;
+        }
+
+        // Adds the possibility to auto scroll through sections on touch devices.
+        function addTouchHandler() {
+            console.log("log");
+            if (isTouchDevice || isTouch) {
+                //Microsoft pointers
+                var MSPointer = getMSPointer();
+
+                $(document).off('touchstart ' + MSPointer.down).on('touchstart ' + MSPointer.down, touchStartHandler);
+                $(document).off('touchmove ' + MSPointer.move).on('touchmove ' + MSPointer.move, touchMoveHandler);
+            }
+        }
+
+        /**
+         * Removes the auto scrolling for touch devices.
+         */
+        function removeTouchHandler(){
+            if(isTouchDevice || isTouch){
+                //Microsoft pointers
+                MSPointer = getMSPointer();
+
+                $(document).off('touchstart ' + MSPointer.down);
+                $(document).off('touchmove ' + MSPointer.move);
+            }
+        }
+
+
+        /*
+         * Returns and object with Microsoft pointers
+         */
+        function getMSPointer() {
+            var pointer;
+
+            //IE >= 11 & rest of browsers
+            if (window.PointerEvent) {
+                pointer = {down: "pointerdown", move: "pointermove"};
+            }
+
+            //IE < 11
+            else {
+                pointer = {down: "MSPointerDown", move: "MSPointerMove"};
+            }
+
+            return pointer;
+        }
+
+
+        /**
+         * Gets the pageX and pageY properties depending on the browser.
+         * https://github.com/alvarotrigo/fullPage.js/issues/194#issuecomment-34069854
+         */
+        function getEventsPage(e){
+            var events = new Array();
+
+            events['y'] = (typeof e.pageY !== 'undefined' && (e.pageY || e.pageX) ? e.pageY : e.touches[0].pageY);
+            events['x'] = (typeof e.pageX !== 'undefined' && (e.pageY || e.pageX) ? e.pageX : e.touches[0].pageX);
+
+            return events;
         }
 
 
@@ -378,6 +586,15 @@
             goToPanel($('.fp-section').eq(reversedIndex));
         });
 
+        if(options.normalScrollElements){
+            $(document).on('mouseenter', options.normalScrollElements, function () {
+                $.fn.fullpage.setMouseWheelScrolling(false);
+            });
+
+            $(document).on('mouseleave', options.normalScrollElements, function(){
+                $.fn.fullpage.setMouseWheelScrolling(true);
+            });
+        }
 
         // Handle resize
         var resizeId;
